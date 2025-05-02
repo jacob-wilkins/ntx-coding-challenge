@@ -1,48 +1,39 @@
-"use client";   // forgot what this is for, need to look this up
+import type { Todo } from "@/lib/types"
+import TodoList from "@/components/TodoList"
 
-// standard react stuff
-import { useEffect, useState } from "react";
-import getData from "@/lib/getData";
+export default async function TodosPage() {
+    let todos: Todo[] = [];
+    let loadError = false;  // used for showing the error or not
 
-export default function Todos() {
-  // may need to change this later to include a class for the data (Promise??)
-  const [todos, setTodos] = useState<
-    { userId: number; id: number; title: string; completed: boolean }[]
-  >([]);
+    // getting the api data
+    try {
+        const resp = await fetch("https://jsonplaceholder.typicode.com/todos");
+        if (!resp.ok) {
+            throw new Error(`Failed to fetch todos, status: ${resp.status}`);   
+        }
 
-  // used for loading buffer text
-  const [loading, setLoading] = useState(true);
+        const data: Todo[] = await resp.json();
 
-  // runs after component is rendered
-  useEffect(() => {
-    async function fetchTodos() {
-      // get api data
-      const data = await getData();
+        // looked up algorithm to shuffle this json: Fisher-Yates Shuffle
+        // I could've imported something to do this, but it felt unnessary
+        for (let i = data.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [data[i], data[j]] = [data[j], data[i]];
+        }
 
-      // update todos map with collected data
-      setTodos(data);
-
-      // update loading variable to false
-      setLoading(false);
+        // return first 3 values
+        todos = data.slice(0, 3);
+    } catch (error) {
+        console.error("Error fetching todos:", error);
+        loadError = true;
     }
-    fetchTodos();
-  }, []);   // add empty array at the end to make sure this effect only runs once
 
-  // if loading is true, display temporary text
-  if (loading) return <p>Loading...</p>;
+    return (
+        <div className="min-h-screen p-8 grid grid-rows-[auto_1fr_auto] gap-8">
+            <h1 className="text-3xl font-bold">Random Todos</h1>
 
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <h1 className="text-2xl font-bold">Todo List</h1>
-      <ul className="space-y-2">
-        {/* map over data with the id as the key */}
-        {todos.map((todo) => (
-          <li key={todo.id} className="flex items-center gap-2">
-            <input type="checkbox" checked={todo.completed} readOnly />
-            <span>{todo.title}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+            {loadError ? (<div className="text-red-500">Failed to load initial todos.</div>) : (<TodoList initialTodos={todos} />)}
+
+        </div>
+    );
 }
