@@ -6,8 +6,6 @@ export default async function getData(): Promise<{ userId: number; id: number; t
 
     if (!resp.ok) throw new Error(`Status: ${resp.status}`);
 
-    console.log(resp)
-
     const json = await resp.json();
     
     // looked up algorithm to shuffle this json: Fisher-Yates Shuffle
