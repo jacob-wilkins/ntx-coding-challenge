@@ -30,6 +30,8 @@ export default function TodoList({ initialTodos }: TodoListProps) {
                 onChange={() => toggle(todo.id)}
               />
               <span>{todo.title}</span>
+              <button>Edit</button>
+              <button>Delete</button>
             </li>
           ))}
         </ul>

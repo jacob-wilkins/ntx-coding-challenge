@@ -2,7 +2,7 @@ import type { Todo } from "@/lib/types"
 import TodoList from "@/components/TodoList"
 
 export default async function TodosPage() {
-    let todos: Todo[] = [];
+    let todos: Todo[] = []; // holds all of the todos from api
     let loadError = false;  // used for showing the error or not
 
     // getting the api data
