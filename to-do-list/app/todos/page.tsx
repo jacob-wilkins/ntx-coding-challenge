@@ -29,8 +29,11 @@ export default async function TodosPage() {
     }
 
     return (
-        <div className="min-h-screen p-8 grid grid-rows-[auto_1fr_auto] gap-8">
-            <h1 className="text-3xl font-bold">todo</h1>
+        <div className="text-center bg-gray-950">
+            <h1 className="text-8xl font-bold leading-none space-y-0 space-x-0">
+                <span className="text-pink-500 inline">to</span>
+                <span className="text-blue-500 inline">do</span>
+            </h1>
 
             {loadError ? (<div className="text-red-500">Failed to load initial todos.</div>) : (<TodoList initialTodos={todos} />)}
 
