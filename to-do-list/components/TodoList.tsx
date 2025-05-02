@@ -3,6 +3,9 @@
 // standard react stuff
 import { useEffect, useState } from "react";
 import type { Todo } from "@/lib/types";
+// at the top of your component file
+import { CheckCircle, PencilSimpleLine, Trash } from "phosphor-react";
+
 
 interface TodoListProps {
     initialTodos: Todo[];
@@ -75,62 +78,151 @@ export default function TodoList({ initialTodos }: TodoListProps) {
     }
 
     return (
-      <>
-      <div>
-          <input 
+      <div className="min-h-screen bg-gray-950 p-8 flex flex-col items-center">
+        {/* ——— Form ——— */}
+        <div className="w-full max-w-3xl flex gap-2 mb-8">
+          <input
             type="text"
             id="newTodo"
             value={newTitle}
-            placeholder="Add a new todo item..."
+            placeholder="Add a new task..."
             onChange={(e) => setNewTitle(e.target.value)}
+            className="
+              flex-1
+              px-4 py-3
+              bg-gray-800 placeholder-gray-500
+              border border-gray-700
+              rounded-lg
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          />
+          <button
+            onClick={createTodo}
+            className="
+              px-6 py-3
+              bg-blue-500 hover:bg-blue-600
+              text-white font-semibold
+              rounded-lg
+              transition
+            "
+          >
+            Create
+          </button>
+        </div>
+    
+        {/* ——— Counters ——— */}
+        <div className="w-full max-w-3xl flex justify-between mb-4 text-sm">
+          <span className="text-pink-400 font-bold">
+            Tasks created{' '}
+            <span className="bg-gray-700 text-white px-2 rounded-full">
+              {items.length}
+            </span>
+          </span>
+          <span className="text-blue-400 font-bold">
+            Completed{' '}
+            <span className="bg-gray-700 text-white px-2 rounded-full">
+              {items.filter((t) => t.completed).length} of {items.length}
+            </span>
+          </span>
+        </div>
+    
+        {/* ——— Todo List ——— */}
+        <ul className="w-full max-w-3xl space-y-3">
+          {items.map((todo) => (
+            <li
+              key={todo.id}
+              className="
+                bg-gray-700
+                rounded-lg
+                p-4
+                flex items-center justify-between
+              "
             >
-          </input>
-          <button onClick={createTodo}>Create</button>
-      </div>
-      <ul className="space-y-2">
-        {items.map((todo) => (
-          <li key={todo.id} className="flex items-center gap-2 w-full p-2 mb-4 bg-gray-700 text-white rounded">
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => toggle(todo.id)}
-            />
-            <span>{todo.title}</span>
-            <button onClick={() => openModal(todo)}>Edit</button>
-            <button onClick={() => remove(todo.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-
-      {editModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-xl font-semibold text-gray-100 mb-4">
-              Edit Todo
-            </h2>
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full p-2 mb-4 bg-gray-700 text-white rounded"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={saveEdit}
-                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
-              >
-                Save
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => toggle(todo.id)}
+                  className={`
+                    w-5 h-5 rounded-full flex items-center justify-center
+                    transition-colors duration-200
+                    ${todo.completed
+                      ? 'bg-blue-400 text-white'
+                      : 'border-2 border-pink-400 text-transparent'}
+                  `}
+                >
+                  {todo.completed && (
+                    <CheckCircle size={16} weight="bold" />
+                  )}
+                </button>
+                <span
+                  className={`
+                    flex-1 break-words text-balance break-words break-all text-left w-full
+                    ${todo.completed
+                      ? 'line-through text-gray-400'
+                      : 'text-gray-100'}
+                  `}
+                >
+                  {todo.title}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => openModal(todo)}
+                  className="text-blue-400 hover:text-blue-500 transition"
+                >
+                  <PencilSimpleLine size={18} />
+                </button>
+                <button
+                  onClick={() => remove(todo.id)}
+                  className="text-gray-400 hover:text-red-500 transition"
+                >
+                  <Trash size={18} weight="bold" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+    
+        {/* ——— Edit Modal ——— */}
+        {editModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+              <h2 className="text-xl font-semibold text-white mb-4">
+                Editar Tarefa
+              </h2>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="
+                  w-full p-2 mb-4
+                  bg-gray-700 text-white
+                  rounded-lg
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
+                "
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={closeModal}
+                  className="
+                    px-4 py-2 bg-gray-600 hover:bg-gray-700
+                    text-white rounded-lg transition
+                  "
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={saveEdit}
+                  className="
+                    px-4 py-2 bg-blue-500 hover:bg-blue-600
+                    text-white rounded-lg transition
+                  "
+                >
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      </>
+        )}
+      </div>
     );
 }
