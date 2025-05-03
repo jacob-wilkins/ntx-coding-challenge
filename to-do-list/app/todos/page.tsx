@@ -1,34 +1,9 @@
-import type { Todo } from "@/lib/types"
-import TodoList from "@/components/TodoList"
+import TodoList from "@/components/TodoList";
+import prisma from "@/lib/prisma"
 
 export default async function TodosPage() {
-    let todos: Todo[] = []; // holds all of the todos from api
-    let loadError = false;  // used for showing the error or not
-    let loading = true;
 
-    // getting the api data
-    try {
-        const resp = await fetch("https://jsonplaceholder.typicode.com/todos");
-        if (!resp.ok) {
-            throw new Error(`Failed to fetch data, status: ${resp.status}`);   
-        }
-
-        const data: Todo[] = await resp.json();
-
-        // looked up algorithm to shuffle this json: Fisher-Yates Shuffle
-        // I could've imported something to do this, but it felt unnessary
-        for (let i = data.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [data[i], data[j]] = [data[j], data[i]];
-        }
-
-        // return first 3 values
-        todos = data.slice(0, 3);
-    } catch (error) {
-        console.error("Error fetching todos:", error);
-        loadError = true;
-    }
-    
+    const todos = await prisma.todoTask.findMany();
 
     return (
         <div className="text-center bg-gray-950">
@@ -37,7 +12,7 @@ export default async function TodosPage() {
                 <span className="text-blue-500 inline">do</span>
             </h1>
 
-            {loadError ? (<div className="min-h-screen p-8 flex flex-col items-center text-red-500">Failed to load initial data.</div>) : (<TodoList initialTodos={todos} />)}
+            <TodoList initialTodos={todos} />
 
         </div>
     );
