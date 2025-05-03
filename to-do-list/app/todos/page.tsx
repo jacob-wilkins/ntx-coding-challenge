@@ -4,12 +4,13 @@ import TodoList from "@/components/TodoList"
 export default async function TodosPage() {
     let todos: Todo[] = []; // holds all of the todos from api
     let loadError = false;  // used for showing the error or not
+    let loading = true;
 
     // getting the api data
     try {
         const resp = await fetch("https://jsonplaceholder.typicode.com/todos");
         if (!resp.ok) {
-            throw new Error(`Failed to fetch todos, status: ${resp.status}`);   
+            throw new Error(`Failed to fetch data, status: ${resp.status}`);   
         }
 
         const data: Todo[] = await resp.json();
@@ -27,6 +28,7 @@ export default async function TodosPage() {
         console.error("Error fetching todos:", error);
         loadError = true;
     }
+    
 
     return (
         <div className="text-center bg-gray-950">
@@ -35,7 +37,7 @@ export default async function TodosPage() {
                 <span className="text-blue-500 inline">do</span>
             </h1>
 
-            {loadError ? (<div className="text-red-500">Failed to load initial todos.</div>) : (<TodoList initialTodos={todos} />)}
+            {loadError ? (<div className="min-h-screen p-8 flex flex-col items-center text-red-500">Failed to load initial data.</div>) : (<TodoList initialTodos={todos} />)}
 
         </div>
     );

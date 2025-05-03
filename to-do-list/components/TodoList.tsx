@@ -16,6 +16,18 @@ export default function TodoList({ initialTodos }: TodoListProps) {
     const [editTitle, setEditTitle] = useState("");           // editing title of todo
     const [newTitle, setNewTitle] = useState("");           // creating a new todo
     const [editModal, setEditModal] = useState<Todo | null>(null);  // for the popup modal
+    const [error, setError] = useState("");       // used for error handling
+    const [isError, setIsError] = useState(false);  // also used for error handling
+    const [filter, setFilter] = useState("all");  // filters the table
+
+    useEffect(() => {
+      if (isError) {
+        const timer = setTimeout(() => {
+          setIsError(false);
+        }, 5500);                    // hide after 3 seconds
+        return () => clearTimeout(timer); // cleanup if unmounted early
+      }
+    }, [isError]);
 
     // makes the edit modal visible
     const openModal = (todo: Todo) => {
@@ -57,10 +69,19 @@ export default function TodoList({ initialTodos }: TodoListProps) {
       }
     };
 
+    
+
     // creates a new todo list item
     const createTodo = () => {
       // if there is nothing in the text box when clicked
-      if (!newTitle.trim()) return;
+      if (!newTitle.trim()) {
+        setError("Error: textbox should not be empty when submitting");
+        setIsError(true);
+        return;
+      }
+
+      setError("");
+      setIsError(false);
 
       // create the actual object
       const newTodo: Todo = {
@@ -77,10 +98,30 @@ export default function TodoList({ initialTodos }: TodoListProps) {
       setNewTitle("");
     }
 
+    // changes the filter based on the dropdown box
+    const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setFilter(event.target.value);
+    }
+
+    // filters todos based on the current filter
+    const filteredItems = items.filter((todo) => {
+      if (filter === "active") return !todo.completed;
+      if (filter === "completed") return todo.completed;
+      return true;
+    });
+
     return (
-      <div className="min-h-screen bg-gray-950 p-8 flex flex-col items-center">
+      <div className="min-h-screen p-8 flex flex-col items-center">
+
+        {isError &&
+          (
+            <div>
+              <span className=" text-red-500 border-2 py-2 px-4 fadeOut">{error}</span>
+            </div>
+          )
+        }
         {/* ——— Form ——— */}
-        <div className="w-full max-w-3xl flex gap-2 mb-8">
+        <div className="w-full max-w-3xl flex gap-2 mb-8 pt-4">
           <input
             type="text"
             id="newTodo"
@@ -118,6 +159,11 @@ export default function TodoList({ initialTodos }: TodoListProps) {
               {items.length}
             </span>
           </span>
+          <select name="sort" id="sort" className="bg-gray-950 text-grey-300 rounded text-center" value={filter} onChange={handleFilterChange}>
+            <option value="all">Show all</option>
+            <option value="active">Show active</option>
+            <option value="completed">Show completed</option>
+          </select>
           <span className="text-blue-400 font-bold">
             Completed{' '}
             <span className="bg-gray-700 text-white px-2 rounded-full">
@@ -128,7 +174,7 @@ export default function TodoList({ initialTodos }: TodoListProps) {
     
         {/* ——— Todo List ——— */}
         <ul className="w-full max-w-3xl space-y-3">
-          {items.map((todo) => (
+          {filteredItems.map((todo) => (
             <li
               key={todo.id}
               className="
@@ -208,7 +254,7 @@ export default function TodoList({ initialTodos }: TodoListProps) {
                     text-white rounded-lg transition
                   "
                 >
-                  Cancelar
+                  Cancel
                 </button>
                 <button
                   onClick={saveEdit}
@@ -217,7 +263,7 @@ export default function TodoList({ initialTodos }: TodoListProps) {
                     text-white rounded-lg transition
                   "
                 >
-                  Salvar
+                  Save
                 </button>
               </div>
             </div>
