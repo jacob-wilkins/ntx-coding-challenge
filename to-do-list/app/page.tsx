@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Todo } from "@/lib/types";
-import { JsonDB, Config } from 'node-json-db';
 import prisma from "@/lib/prisma"
 
 export default async function Home() {
