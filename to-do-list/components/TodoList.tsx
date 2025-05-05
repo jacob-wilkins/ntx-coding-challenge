@@ -12,9 +12,7 @@ interface TodoListProps {
 
 export default function TodoList({ initialTodos }: TodoListProps) {
     const [items, setItems] = useState<Todo[]>(initialTodos); // changing todos list
-    const [editTitle, setEditTitle] = useState("");           // editing title of todo
-    const [newTitle, setNewTitle] = useState("");           // creating a new todo
-    const [input, setInput] = useState("");
+    const [input, setInput] = useState("");   // used for setting titles and editing titles
     const [editModal, setEditModal] = useState<Todo | null>(null);  // for the popup modal
     const [error, setError] = useState("");       // used for error handling
     const [isError, setIsError] = useState(false);  // also used for error handling
@@ -40,6 +38,18 @@ export default function TodoList({ initialTodos }: TodoListProps) {
       setEditModal(null);
       setInput("");
     }
+
+    // changes the filter based on the dropdown box
+    const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setFilter(event.target.value);
+    }
+
+    // filters todos based on the current filter
+    const filteredItems = items.filter((todo) => {
+      if (filter === "active") return !todo.completed;
+      if (filter === "completed") return todo.completed;
+      return true;
+    });
   
     const handleCreateKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
@@ -174,18 +184,6 @@ export default function TodoList({ initialTodos }: TodoListProps) {
         setIsError(true);
       }
     }
-
-    // changes the filter based on the dropdown box
-    const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-      setFilter(event.target.value);
-    }
-
-    // filters todos based on the current filter
-    const filteredItems = items.filter((todo) => {
-      if (filter === "active") return !todo.completed;
-      if (filter === "completed") return todo.completed;
-      return true;
-    });
 
     return (
       <div className="min-h-screen p-8 flex flex-col items-center">
